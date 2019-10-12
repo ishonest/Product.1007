@@ -1,0 +1,10 @@
+Data/Plots/*
+Data/Process.Tracker/*
+Data/Scores/*
+Data/Simulation/*
+Data/Summary/*
+.RData
+.Rhistory
+.Rproj.user/*
+dopar_log.txt
+Production.Rproj
