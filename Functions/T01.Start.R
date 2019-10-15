@@ -182,7 +182,7 @@ IB.StartDay <- function()
 {
   assign("IB.01.targets"
          , readRDS("./Data/Trading/01.Targets.rds") %>%
-           filter(account == IB.Parms[["acctCode"]], Type == "LONG") 
+           filter(account == IB.Parms[["acctCode"]]) 
          , envir = .GlobalEnv)
   
   assign("IB.03.orders"
@@ -199,10 +199,10 @@ IB.StartDay <- function()
   
   IB.Account.Status()
   
-  cash <- as.numeric(IB.00.account["CashBalance", "value"])
-  IB.Parms[["invest.max"]] <- ifelse(cash < IB.Parms[["invest.max"]], cash, IB.Parms[["invest.max"]])
-  assign("IB.Parms", IB.Parms, envir = .GlobalEnv)
-  rm(cash)
+  # cash <- as.numeric(IB.00.account["CashBalance", "value"])
+  # IB.Parms[["invest.max"]] <- ifelse(cash < IB.Parms[["invest.max"]], cash, IB.Parms[["invest.max"]])
+  # assign("IB.Parms", IB.Parms, envir = .GlobalEnv)
+  # rm(cash)
   
   IB.System.Status()
 }

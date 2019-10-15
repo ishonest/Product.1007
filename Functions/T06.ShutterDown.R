@@ -109,6 +109,8 @@ AF.Performance.Summary <- function()
   }
   
   x <- x %>%
+        # mutate(units.BUY = ifelse(is.nan(units.BUY), 0, units.BUY),
+        #        units.SELL = ifelse(is.nan(units.SELL), 0, units.SELL)) %>%
         filter(units.BUY + units.SELL == 0) %>%
         mutate(invest = case_when(Type == "LONG" ~ units.BUY*price.BUY,
                                   Type == "SHRT" ~ -units.SELL*price.SELL),
@@ -122,6 +124,13 @@ AF.Performance.Summary <- function()
         select(ticker, algoId, Type, DP.Method, MA.Type, Period, buy.ds, sell.ds,
                invest, return, roi, duration) %>%
         ungroup()
+  
+  if(nrow(x) == 0)
+  {
+    rm(x)
+    return(cat("\nNo trades on Production Algorithms have been closed ...\n"))
+  }
+  
 
   y <- x %>% group_by(algoId, Type) %>%
         summarise(Eff = max(sell.ds) - min(buy.ds), 
@@ -194,9 +203,25 @@ IB.Shutter.Down <- function(Force.Close = TRUE)
               group_by(account, ticker, algoId, DP.Method, MA.Type, Period) %>%
               summarise(units = sum(units, na.rm = TRUE)) %>%
               filter(units != 0)
+  
+  h.nav <- IB.00.positions %>%
+            mutate(PNL = as.numeric(unrealizedPNL) + as.numeric(realizedPNL),
+                   value = ifelse(position < 0, -marketValue + 2*PNL, marketValue) ) %>%
+            select(accountName, symbol, position, value, currency) %>%
+            rename(account = accountName, ticker = symbol) %>%
+            bind_rows(data.frame(account = IB.Parms[["acctCode"]],
+                                 ticker = "^CASH",
+                                 value = Available.Funds,
+                                 currency = "USD",
+                                 stringsAsFactors = FALSE
+                                 )) %>%
+            mutate(ts = Sys.time(), ds = Sys.Date()) %>%
+            bind_rows(readRDS("./Data/Trading/04.Historical.NAV.rds")) %>%
+            group_by(account, ticker, ds) %>%
+            filter(ts == max(ts)) %>%
+            ungroup()
 
   h.orders <- IB.03.orders %>% 
-              # mutate(account = IB.Parms[["acctCode"]]) %>%
               bind_rows(readRDS("./Data/Trading/03.Historical.Orders.rds")) %>% 
               distinct() %>% arrange(desc(order.ts))
   
@@ -206,8 +231,9 @@ IB.Shutter.Down <- function(Force.Close = TRUE)
   saveRDS(h.latest, "./Data/Trading/00.Latest.rds")
   saveRDS(h.activity, "./Data/Trading/02.Historical.Activity.rds")
   saveRDS(h.orders, "./Data/Trading/03.Historical.Orders.rds")
-
-  rm(h.activity, h.orders, h.latest)
+  saveRDS(h.nav, "./Data/Trading/04.Historical.NAV.rds")
+  
+  rm(h.activity, h.orders, h.latest, h.nav)
 }
 
 IB.Shutter.Down()

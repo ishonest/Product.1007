@@ -51,12 +51,13 @@ while(lubridate::hour(format(Sys.time(), tz = "US/Eastern")) < IB.Parms[["Stop.T
 source("./Functions/T06.ShutterDown.R")
 
 # -------------------------------------------------------------------------
-# WARNING: Emergency Process: All positions will be closed
+# WARNING: 
+# Emergency Process: All positions will be closed
 # -------------------------------------------------------------------------
 # # source("./Functions/T07.Emergency.R")
 # -------------------------------------------------------------------------
-# WARNING: Restarting System: All logs will be deleted
-# Do Not Use Unless Necessary
+# WARNING: 
+# Restarting System: All logs will be deleted
 # -------------------------------------------------------------------------
 # # source("./Functions/T00.Restart.R")
 # -------------------------------------------------------------------------

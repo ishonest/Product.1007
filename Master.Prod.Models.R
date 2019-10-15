@@ -6,7 +6,7 @@ source("./Functions/M01.Scoring.R")
 Parms <- list(algoIds = c("20191007")
               , buyalgos = c("20191007")
               # , acctCode         = "DU1617055"   # IB Account Number (Paper)
-              , acctCode         = "DU3263834"   # IB Account Number (Live)
+              , acctCode         = "U3263834"   # IB Account Number (Live)
               , invest.max.model  = 1000   # Maximum investment in a model
               , invest.max.ticker = 3000   # Maximum investment in a ticker
               , max.capacity      = 0.01   # Max % of yesterday's volume any model can buy
@@ -25,7 +25,7 @@ for (algoId in Parms$algoIds)
 # Selecting Models in buyalgos or having a position
 if(file.exists("./Data/Trading/00.Latest.rds"))
 {
-  in.hand <- readRDS("./Data/Trading/00.Latest.rds") %>% 
+  in.hand <- readRDS("./Data/Trading/00.Latest.rds") %>% ungroup() %>%
               filter(account == Parms[["acctCode"]]) %>% select(-account)
 
   prod.models <- prod.models %>% arrange(ticker, ID, R, algoId) %>%
