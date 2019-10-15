@@ -109,13 +109,11 @@ AF.Performance.Summary <- function()
   }
   
   x <- x %>%
-        # mutate(units.BUY = ifelse(is.nan(units.BUY), 0, units.BUY),
-        #        units.SELL = ifelse(is.nan(units.SELL), 0, units.SELL)) %>%
         filter(units.BUY + units.SELL == 0) %>%
         mutate(invest = case_when(Type == "LONG" ~ units.BUY*price.BUY,
                                   Type == "SHRT" ~ -units.SELL*price.SELL),
                return = case_when(Type == "LONG" ~ -units.SELL*price.SELL,
-                                  Type == "SHRT" ~ units.BUY*price.BUY),
+                                  Type == "SHRT" ~ invest - (units.BUY*price.BUY - invest)),
                roi = return/invest,
                duration = abs(ds.SELL - ds.BUY),
                buy.ds = pmin(ds.BUY, ds.SELL),
@@ -220,20 +218,30 @@ IB.Shutter.Down <- function(Force.Close = TRUE)
             group_by(account, ticker, ds) %>%
             filter(ts == max(ts)) %>%
             ungroup()
-
+  
   h.orders <- IB.03.orders %>% 
               bind_rows(readRDS("./Data/Trading/03.Historical.Orders.rds")) %>% 
               distinct() %>% arrange(desc(order.ts))
   
   View(h.activity)
   View(h.latest)
-
+  
+  nav.perf <- h.nav %>% group_by(ds) %>% 
+              summarise(value = sum(value)) %>%
+              ungroup() %>% mutate(NAV = value/first(value))
+  
+  plot_ly(x = ~ds, y = ~NAV, data = nav.perf, 
+          type = 'scatter', mode = 'lines', line = list(color = '#a6a6a6', width = 0.5)) %>%
+    layout(font = list(size = 12), showlegend = FALSE, 
+           xaxis = list(title = NA),
+           yaxis = list(title = "NAV", color = '#3f6ea6', tickformat = ".2%") )
+  
   saveRDS(h.latest, "./Data/Trading/00.Latest.rds")
   saveRDS(h.activity, "./Data/Trading/02.Historical.Activity.rds")
   saveRDS(h.orders, "./Data/Trading/03.Historical.Orders.rds")
   saveRDS(h.nav, "./Data/Trading/04.Historical.NAV.rds")
   
-  rm(h.activity, h.orders, h.latest, h.nav)
+  rm(h.activity, h.orders, h.latest, h.nav, nav.perf)
 }
 
 IB.Shutter.Down()
@@ -241,7 +249,7 @@ IB.Shutter.Down()
 NY.Time <- as.numeric(strftime(format(Sys.time(), tz = "US/Eastern"), format = "%H.%M"))
 if(NY.Time > 16.00)
 {
-  do.call(unlink, list(list.files("./Data/Simulation/", full.names = TRUE)))
+  do.call(unlink, list(list.files(c("./Data/Simulation/", "./Data/Scores/"), full.names = TRUE)))
   twsDisconnect(tws)
   rm(list = ls())
   gc()

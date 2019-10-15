@@ -207,7 +207,8 @@ AF.simulate.ts <- function(df, Process = "Development")
     {
       op <- left_join(op, 
             readRDS(paste0(Parms$data.folder, "Trading/00.Latest.rds")) %>% 
-              filter(account == Parms[["acctCode"]]) %>% select(-account) %>% 
+              filter(account == Parms[["acctCode"]]) %>% 
+              ungroup() %>% select(-account) %>% 
               rename(in.hand = units), 
             by = c("algoId", "ticker", "DP.Method", "MA.Type", "Period"))
     } else
@@ -274,7 +275,7 @@ Simulate.Trading <- function(sim, Process = "Development")
   
   sim2 <- foreach(i = unique(sim$ID), .errorhandling = 'remove', .combine = bind_rows) %do%
   {
-    # i = 84
+    # i = 123
     sim2 <- sim %>%
           filter(ID == i) %>% ungroup() %>% arrange(ds) %>%
           mutate(buy.window = case_when(R.buy > 0 ~ 1)) %>%
@@ -360,14 +361,14 @@ Simulated.Performance.Model <- function(sim, validation.period)
 # -------------------------------------------------------------------------
 Action.Today <- function(sim)
 {
-  bought <- ifelse(is.na(last(sim$in.hand)), 0, last(sim$in.hand))
+  bought <- sum(!is.na(sim %>% filter(ds == max(ds)) %>% pull(in.hand)))
   can.buy <- floor(max(Parms$invest.max.ticker/Parms$invest.max.model - bought, 0))
 
   today <- sim %>% 
             mutate(account = Parms[["acctCode"]],
                    missed.signal = ifelse(!is.na(action) & action == "MISSED BUY", 1, 0),
                    missed.signal = missed.signal*cumsum(missed.signal),
-                   units = case_when(grepl("SELL", action) ~ (-1)*bought,
+                   units = case_when(grepl("SELL", action) ~ (-1)*in.hand,
                                      grepl("BUY", action) & Type == "LONG" 
                                        ~ floor(pmin(Parms$max.capacity*lag(volume), 
                                                     Parms$invest.max.model/buy.price)),

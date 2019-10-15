@@ -86,9 +86,9 @@ IB.Actions <- function(today = Sys.Date())
                       # BUY
                       Type == "LONG" & units > 0 & close <= buy.price & close > stop.price ~ "LMT",
                       # SELL
-                      Type == "LONG" & units < 0 & sell.price <= high ~ "LMT",
+                      Type == "LONG" & units < 0 & close >= sell.price ~ "LMT",
                       # STOP SELL
-                      Type == "LONG" & units < 0 & close <= stop.price ~ "MKT",
+                      Type == "LONG" & units < 0 & close <= stop.price ~ "LMT",
                       # MISSED SELL + EOD
                       Type == "LONG" & units < 0 & action == "MISSED SELL" & !is.na(last.sell) ~ "MKT",
                       # EOD SELL
@@ -98,9 +98,9 @@ IB.Actions <- function(today = Sys.Date())
                       # BUY
                       Type == "SHRT" & units < 0 & close >= buy.price & close < stop.price ~ "LMT",
                       # SELL
-                      Type == "SHRT" & units > 0 & sell.price >= low ~ "LMT",
+                      Type == "SHRT" & units > 0 & close <= sell.price ~ "LMT",
                       # STOP SELL
-                      Type == "SHRT" & units > 0 & close >= stop.price ~ "MKT",
+                      Type == "SHRT" & units > 0 & close >= stop.price ~ "LMT",
                       # MISSED SELL + EOD
                       Type == "SHRT" & units > 0 & action == "MISSED SELL" & !is.na(last.sell) ~ "MKT",
                       # EOD SELL

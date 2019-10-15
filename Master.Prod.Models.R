@@ -7,6 +7,7 @@ Parms <- list(algoIds = c("20191007")
               , buyalgos = c("20191007")
               # , acctCode         = "DU1617055"   # IB Account Number (Paper)
               , acctCode         = "U3263834"   # IB Account Number (Live)
+              
               , invest.max.model  = 1000   # Maximum investment in a model
               , invest.max.ticker = 3000   # Maximum investment in a ticker
               , max.capacity      = 0.01   # Max % of yesterday's volume any model can buy
@@ -80,9 +81,6 @@ source("./Functions/M02.Simulation.R")
 do.call(unlink,
         list(list.files(c("./Data/Process.Tracker/", "./Data/Simulation/"), full.names = TRUE)))
 
-overview <- readRDS("./Data/Summary/Overview.rds") %>% 
-            select(ticker, Exchange, tickerID) %>% distinct()
-
 stocks <- setdiff(gsub(".rds", "", list.files("./Data/Scores/")), 
                   gsub(".rds", "", list.files("./Data/Process.Tracker/")))
 
@@ -98,8 +96,7 @@ targets <- foreach(ticker = stocks, .combine = bind_rows, .packages = c("dplyr",
 saveRDS(targets, paste0("./Data/Trading/01.Targets.rds"))
 View(targets)
 # -------------------------------------------------------------------------
-do.call(unlink,
-        list(list.files(c("./Data/Process.Tracker/", "./Data/Scores/"), full.names = TRUE)))
+do.call(unlink, list(list.files(c("./Data/Process.Tracker/"), full.names = TRUE)))
 
 stopCluster(cl)
 rm(list = ls())
