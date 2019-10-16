@@ -230,18 +230,20 @@ IB.Shutter.Down <- function(Force.Close = TRUE)
               summarise(value = sum(value)) %>%
               ungroup() %>% mutate(NAV = value/first(value))
   
-  plot_ly(x = ~ds, y = ~NAV, data = nav.perf, 
-          type = 'scatter', mode = 'lines', line = list(color = '#a6a6a6', width = 0.5)) %>%
-    layout(font = list(size = 12), showlegend = FALSE, 
-           xaxis = list(title = NA),
-           yaxis = list(title = "NAV", color = '#3f6ea6', tickformat = ".2%") )
+  p <- plot_ly(x = ~ds, y = ~NAV, data = nav.perf, 
+              type = 'scatter', mode = 'lines', line = list(color = '#a6a6a6', width = 0.5)) %>%
+        layout(font = list(size = 12), showlegend = FALSE, 
+               xaxis = list(title = NA),
+               yaxis = list(title = "NAV", color = '#3f6ea6', tickformat = ".2%") )
+  
+  print(p)
   
   saveRDS(h.latest, "./Data/Trading/00.Latest.rds")
   saveRDS(h.activity, "./Data/Trading/02.Historical.Activity.rds")
   saveRDS(h.orders, "./Data/Trading/03.Historical.Orders.rds")
   saveRDS(h.nav, "./Data/Trading/04.Historical.NAV.rds")
   
-  rm(h.activity, h.orders, h.latest, h.nav, nav.perf)
+  rm(h.activity, h.orders, h.latest, h.nav, nav.perf, p)
 }
 
 # -------------------------------------------------------------------------
