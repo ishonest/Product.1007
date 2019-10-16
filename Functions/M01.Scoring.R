@@ -1,9 +1,4 @@
-# Swapped the formula of close and adjusted 7/May
-# Use adjusted (i.e. adjusted) for ROI.c
-
-rm(list = ls())
-gc()
-options(scipen = 3)
+options(scipen = 4)
 set.seed(1024)
 
 library(dplyr)
@@ -11,7 +6,7 @@ library(doSNOW)
 library(foreach)
 
 closeAllConnections()
-cl <- makeCluster(4, outfile="dopar_log.txt")
+cl <- makeCluster(parallel::detectCores(), outfile="dopar_log.txt")
 registerDoSNOW(cl)
 
 # -------------------------------------------------------------------------
@@ -107,7 +102,7 @@ Get.Data.Clean <- function(d1, min.trade = 100000, min.tdays = 250, bad.jumps = 
   }
   rm(in.portfolio)
   
-  source("./Functions/M00.Trading.Days.R")
+  source("./Functions/F.Trading.Days.R")
   
   d1 <- d1 %>% distinct()
   if(nrow(d1) < min.tdays) 
@@ -332,7 +327,7 @@ Get.Incremental.Data <- function(stocks, first.date)
     d1 <- foreach(ticker = stocks, .combine = bind_rows
                   , .errorhandling = 'remove', .packages = c("BatchGetSymbols", "timeDate") ) %dopar%
           {
-            source("./Functions/M00.Trading.Days.R")
+            source("./Functions/F.Trading.Days.R")
             # ticker = stocks[1]
             d1 <- BatchGetSymbols::get.clean.data(ticker, src = "yahoo", 
                                                   first.date, last.date = Sys.Date() ) %>%
@@ -383,3 +378,5 @@ Get.Incremental.Data <- function(stocks, first.date)
   return(all.d1)
   
 }
+
+# -------------------------------------------------------------------------

@@ -2,7 +2,7 @@ AF.Manual.Activity <- function()
 {
   First.Order <- as.POSIXct(paste(Sys.Date(), "09:30:00"), tz = "America/New_York")
   
-  source("./Functions/T05.X.Messaging.R")
+  source("./Functions/F.IB.Messaging.R")
 
   good.run <- FALSE
   while(!good.run)
@@ -244,12 +244,16 @@ IB.Shutter.Down <- function(Force.Close = TRUE)
   rm(h.activity, h.orders, h.latest, h.nav, nav.perf)
 }
 
+# -------------------------------------------------------------------------
 IB.Shutter.Down()
+
+# -------------------------------------------------------------------------
 
 NY.Time <- as.numeric(strftime(format(Sys.time(), tz = "US/Eastern"), format = "%H.%M"))
 if(NY.Time > 16.00)
 {
   do.call(unlink, list(list.files(c("./Data/Simulation/", "./Data/Scores/"), full.names = TRUE)))
+  unlink("./Data/Trading/01.Targets.rds")
   twsDisconnect(tws)
   rm(list = ls())
   gc()

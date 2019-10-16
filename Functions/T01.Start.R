@@ -1,17 +1,32 @@
 # Settings: https://blog.quantinsti.com/ibpy-tutorial-implement-python-interactive-brokers-api/
 # Initialization inside IB.StartDay
 # -------------------------------------------------------------------------
+# install.packages(c("doSNOW", "foreach", "IBrokers", "BatchGetSymbols", "TTR",
+#                    "timeDate", "dplyr", "zoo", "lubridate", "tidyr", "data.table",
+#                    "MASS", "profvis", "plotly", "htmlwidgets", "xlsx", "openxlsx",
+#                    "knitr", "ggplot2"))
+
+# -------------------------------------------------------------------------
+# Initialization
+# -------------------------------------------------------------------------
 rm(list = setdiff(ls(envir = .GlobalEnv), c("IB.Parms")), envir = .GlobalEnv)
 closeAllConnections()
-options(scipen = 3, digits = 8, digits.secs = 0)
+options(scipen = 4, digits = 8, digits.secs = 0)
 set.seed(1024)
+
 library(IBrokers)
 library(dplyr)
 library(foreach)
 library(BatchGetSymbols)
 library(plotly)
+library(ggplot2)
 library(htmlwidgets)
 library(knitr)
+
+# library(doSNOW)
+# closeAllConnections()
+# cl <- makeCluster(4, outfile="dopar_log.txt")
+# registerDoSNOW(cl)
 
 # -------------------------------------------------------------------------
 # Start-Up Functions 
@@ -112,7 +127,7 @@ IB.Account.Status <- function()
 
 IB.System.Status <- function()
 {
-  source("./Functions/M00.Trading.Days.R")
+  source("./Functions/F.Trading.Days.R")
   NY.Time <- round(as.numeric(strftime(format(Sys.time(), tz = "US/Eastern"), format = "%H.%M")), 2)
   Next.Day <- format(NextTradingDate(), '%A, %B %d, %Y')
   Trade.Days <- TradingDates()

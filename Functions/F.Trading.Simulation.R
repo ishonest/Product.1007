@@ -1,25 +1,4 @@
 # -------------------------------------------------------------------------
-# install.packages(c("doSNOW", "foreach", "IBrokers", "BatchGetSymbols", "TTR", 
-#                    "timeDate", "dplyr", "zoo", "lubridate", "tidyr", "data.table", 
-#                    "MASS", "profvis", "plotly", "htmlwidgets", "xlsx", "openxlsx"))
-
-# -------------------------------------------------------------------------
-# Initialization
-# -------------------------------------------------------------------------
-options(scipen = 4)
-set.seed(1024)
-
-library(dplyr)
-library(foreach)
-library(plotly)
-library(ggplot2)
-
-library(doSNOW)
-closeAllConnections()
-cl <- makeCluster(4, outfile="dopar_log.txt")
-registerDoSNOW(cl)
-
-# -------------------------------------------------------------------------
 # Supporting Functions
 # -------------------------------------------------------------------------
 AF.roll <- function(df, var, width)

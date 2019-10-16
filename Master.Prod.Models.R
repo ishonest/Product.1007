@@ -1,19 +1,8 @@
 # -------------------------------------------------------------------------
 # Initialization
 # -------------------------------------------------------------------------
+source("./Functions/F.Sys.Parameters.R")
 source("./Functions/M01.Scoring.R")
-
-Parms <- list(algoIds = c("20191007")
-              , buyalgos = c("20191007")
-              # , acctCode         = "DU1617055"   # IB Account Number (Paper)
-              , acctCode         = "U3263834"   # IB Account Number (Live)
-              
-              , invest.max.model  = 1000   # Maximum investment in a model
-              , invest.max.ticker = 3000   # Maximum investment in a ticker
-              , max.capacity      = 0.01   # Max % of yesterday's volume any model can buy
-              , data.folder       = "./Data/"
-              , last.dev.date     = as.Date("2019-01-31")
-              )
 
 prod.models <- data.frame()
 for (algoId in Parms$algoIds)
@@ -48,7 +37,7 @@ rm(hist.d1)
 # -------------------------------------------------------------------------
 # Rescoring with New Data
 # -------------------------------------------------------------------------
-do.call(unlink, list(list.files(c("./Data/Process.Tracker/", "./Data/Scores/"), full.names = TRUE)))
+# do.call(unlink, list(list.files(c("./Data/Process.Tracker/", "./Data/Scores/"), full.names = TRUE)))
 
 stocks <- setdiff(unique(all.d1$ticker),
                   gsub(".rds", "", list.files("./Data/Process.Tracker/")))
